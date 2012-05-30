@@ -20,6 +20,7 @@ public class MainWnd extends JFrame implements ActionListener {
 		add(butt);
 		setSize(400, 100);
 		setResizable(false);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
 	
