@@ -26,8 +26,7 @@ public class MainWnd extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		fc.showOpenDialog(this);
 		File f = fc.getSelectedFile();
-		// TODO rozpoznawanie
-		int numb = 1;
+		int numb = NNApp.testNetwork(f);
 		desc.setText("Plik '" + f.getName() + "' - rozpoznana cyfra: " + String.valueOf(numb));
 	}
 	

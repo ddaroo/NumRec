@@ -8,6 +8,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.NetworkInterface;
 import java.util.Arrays;
+import javax.swing.*;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -26,6 +27,7 @@ public class NNApp {
 	private static TrainingSet<SupervisedTrainingElement> trainingSet = new TrainingSet<SupervisedTrainingElement>(12,10);
 	private static MultiLayerPerceptron network;
 	private static int counter = 0;
+	private static MainWnd mwnd;
 	
 	public static void main(String[] argv) {
 		loadDataFiles("samples");
@@ -34,7 +36,12 @@ public class NNApp {
 		trainNetwork();
 		for(SupervisedTrainingElement te:trainingSet.trainingElements())
 			testNetwork(te);
-		System.out.println("Skutecznoœæ "+counter * 5 +" %");
+		System.out.println("Skutecznoï¿½ï¿½ "+counter * 5 +" %");
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				mwnd = new MainWnd();
+			}
+		});
 	}
 	
 	public static void testNetwork(SupervisedTrainingElement input){
@@ -129,7 +136,7 @@ public class NNApp {
 		inputDir = new File(dirPath);
 		if(inputDir.canRead())
 			inputFiles = inputDir.listFiles(new waveFilter());		
-		else System.out.println("Nie mo¿na czytaæ");
+		else System.out.println("Nie moï¿½na czytaï¿½");
 	}
 	
 	public static void makeDataFile(){
