@@ -30,8 +30,4 @@ public class MainWnd extends JFrame implements ActionListener {
 		int numb = NNApp.testNetwork(f);
 		desc.setText("Plik '" + f.getName() + "' - rozpoznana cyfra: " + String.valueOf(numb));
 	}
-	
-	public static void main(String[] argv) {
-		
-	}
 }
