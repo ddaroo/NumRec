@@ -2,6 +2,7 @@ package main;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -12,6 +13,7 @@ import javax.swing.*;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.learning.SupervisedTrainingElement;
 import org.neuroph.core.learning.TrainingElement;
 import org.neuroph.core.learning.TrainingSet;
@@ -24,19 +26,20 @@ public class NNApp {
 	
 	public static File[] inputFiles;
 	public static File inputDir;
-	private static TrainingSet<SupervisedTrainingElement> trainingSet = new TrainingSet<SupervisedTrainingElement>(12,10);
+	private static TrainingSet<SupervisedTrainingElement> trainingSet = new TrainingSet<SupervisedTrainingElement>(48,10);
 	private static MultiLayerPerceptron network;
 	private static int counter = 0;
 	private static MainWnd mwnd;
 	
-	public static void main(String[] argv) {
-		loadDataFiles("samples");
-		makeDataFile();
-		preperDataSet();
-		trainNetwork();
-		for(SupervisedTrainingElement te:trainingSet.trainingElements())
-			testNetwork(te);
-		System.out.println("Skutecznoï¿½ï¿½ "+counter * 5 +" %");
+	public static void main(String[] argv) {	
+			loadDataFiles("samples");
+			makeDataFile();
+			preperDataSet();
+			trainNetwork();
+/*			for(SupervisedTrainingElement te:trainingSet.trainingElements())
+				testNetwork(te);
+			System.out.println("Skutecznoï¿½ï¿½ "+counter * (100/trainingSet.size()) +" %");
+*/		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				mwnd = new MainWnd();
@@ -91,8 +94,7 @@ public class NNApp {
 					max = out[i];
 					pos = i;
 				}
-			}
-			
+			}		
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -102,14 +104,17 @@ public class NNApp {
 		}
 		return pos;
 	}
-	
+// Tworzenie sieci, ustawienie parametrów oraz trening
 	public static void trainNetwork(){
-		network = new MultiLayerPerceptron(TransferFunctionType.SIGMOID, 12,20,10);
+		network = new MultiLayerPerceptron(TransferFunctionType.SIGMOID, 48,100,10);
 		MomentumBackpropagation mb =(MomentumBackpropagation)network.getLearningRule();
+		mb.setMomentum(0.25);
+		mb.setLearningRate(0.1);
+		network.randomizeWeights(-1, 1);
 		mb.setMaxIterations(10000);
 		network.learn(trainingSet);
 	}
-	
+// Pobranie danych z pliku z zestawami ucz¹cymi	
 	public static void preperDataSet(){
 		try{
 			trainingSet.clear();
@@ -117,13 +122,13 @@ public class NNApp {
 			BufferedReader br = new BufferedReader(fr);
 			String s;
 			String[] params;
-			double [] coef = new double[22];
+			double [] coef = new double[58];
 			while((s=br.readLine()) != null){
 				params = s.split(" ");
 				for(int i = 0; i<params.length;i++){
 					coef[i] = Double.parseDouble(params[i]);
 				}
-				trainingSet.addElement(new SupervisedTrainingElement(Arrays.copyOfRange(coef, 0, 12), Arrays.copyOfRange(coef, 12, 22)));
+				trainingSet.addElement(new SupervisedTrainingElement(Arrays.copyOfRange(coef, 0, 48), Arrays.copyOfRange(coef, 48, 58)));
 			}
 			fr.close();
 		}
@@ -138,7 +143,7 @@ public class NNApp {
 			inputFiles = inputDir.listFiles(new waveFilter());		
 		else System.out.println("Nie moï¿½na czytaï¿½");
 	}
-	
+// Przetworzenie próbek i ich zapis to odpiwiedniego pliku	
 	public static void makeDataFile(){
 		try{
 			FileWriter fw = new FileWriter("samples/trainingData");

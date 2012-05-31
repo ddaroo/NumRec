@@ -20,14 +20,20 @@ public class MainWnd extends JFrame implements ActionListener {
 		add(butt);
 		setSize(400, 100);
 		setResizable(false);
+		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
+		File fl = new File("samples");
+		fc.setCurrentDirectory(fl);
 		fc.showOpenDialog(this);
 		File f = fc.getSelectedFile();
 		int numb = NNApp.testNetwork(f);
 		desc.setText("Plik '" + f.getName() + "' - rozpoznana cyfra: " + String.valueOf(numb));
+	}	
+	public static void main(String[] argv) {
+		
 	}
 }

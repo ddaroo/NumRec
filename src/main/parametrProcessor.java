@@ -2,49 +2,31 @@ package main;
 
 import jAudioFeatureExtractor.AudioFeatures.*;
 
-
-
 public class parametrProcessor {
 
 	public static double[] obliczParametry(double[] probki){
 		double[] parametry 	= new double[0];
 		double[] norm 	= normal(probki);
 		double[] filtrowanie 	= filtr(norm);
-		double[] pociszy	= cisza(filtrowanie,1.0);
+		double[] pociszy = filtrowanie;//= cisza(filtrowanie,1.0);
 	
-        //Obliczanie MEL CEPSTRUM dla kazdego okna, a potem wyliczanie sredniej	
-		
-												//ustalamy dĹ. okna na ok 10ms
-			double[] probkiOkna = new double[400];
-			double[][] mfcc = new double[2*(pociszy.length/400)][0];
-			System.out.println("mel_cepstrum.length: "+mfcc.length);
+        //Obliczanie MEL CEPSTRUM dla kazdego okna.											
+			int wndSize = pociszy.length/2;
+			double[] probkiOkna = new double[wndSize];
+			double[][] mfcc = new double[2*(pociszy.length/wndSize)][0];			
 
-			double[] okno = okno_Hamminga(400);
+			double[] okno = okno_Hamminga(wndSize);
 			for(int i=0;i<mfcc.length;i++){							//Dla kazdego okna(Nakladanie siÄ okien hamminga)
-				for(int j=0;j<400;j++){
-					probkiOkna[j]=pociszy[(400*(i/2))+j]*okno[j];	//Okienkowanie
+				for(int j=0;j<wndSize;j++){
+					probkiOkna[j]=pociszy[(wndSize*(i/2))+j]*okno[j];	//Okienkowanie
 				}
 				mfcc[i] = obliczDlaOkna(probkiOkna);				//Obliczanie wsp. dla okna
 			}
-			double[] mfccSrednie = new double[mfcc[0].length-1];
-			for(int i=0;i<mfcc[0].length-1;i++){			//dla wspolczynników cepstralnych od 1 do ostatniego (0. pomijamy)...
-				mfccSrednie[i]=0;
-				for(int j=0;j<mfcc.length;j++){			//sumuj po wszystkich oknach
-					mfccSrednie[i]+=mfcc[j][i+1];
-				}
-				mfccSrednie[i]/=mfcc.length;	
-				//Obliczenie sredniej.
+			parametry = new double[mfcc.length * (mfcc[0].length-1)];
+			// Konkatenacja wsp�czynnik�w z wszystkich okien
+			for(int i = 0 ;i<mfcc.length;i++){
+				System.arraycopy(mfcc[i], 1, parametry, 12*i, mfcc[i].length-1);
 			}
-			System.out.print(mfcc[0].length);
-			parametry=mfccSrednie;
-			System.out.println();
-			for (int i=0;i<56;i++)
-				System.out.print(mfcc[i][1]+", ");
-			System.out.println();
-		System.out.println("Parametry obliczone dla pliku:");
-		for(double p:parametry){
-			System.out.print(p+", ");
-		}
 		return parametry;
 
 	}
